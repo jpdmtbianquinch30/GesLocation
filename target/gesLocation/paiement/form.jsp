@@ -1,26 +1,35 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <title>Enregistrer un Paiement</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter Paiement</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<h2>Formulaire Paiement</h2>
-<form action="paiement" method="post">
-    <label>Montant :</label>
-    <input type="number" step="0.01" name="montant" required><br>
+<div class="container mt-4">
+    <h2>Ajouter Paiement</h2>
 
-    <label>Mode de Paiement :</label>
-    <select name="mode" required>
-        <option value="carte">Carte Bancaire</option>
-        <option value="cash">Cash</option>
-        <option value="mobile">Mobile Money</option>
-    </select><br>
+    <form action="<%= request.getContextPath() %>/paiement" method="post">
+        <div class="mb-3">
+            <label for="montant" class="form-label">Montant</label>
+            <input type="number" step="0.01" class="form-control" id="montant" name="montant" required>
+        </div>
 
-    <button type="submit">Enregistrer</button>
-</form>
+        <div class="mb-3">
+            <label for="mode" class="form-label">Mode de paiement</label>
+            <select class="form-select" id="mode" name="mode" required>
+                <option value="">-- Sélectionner un mode --</option>
+                <option value="Carte">Carte</option>
+                <option value="Cash">Cash</option>
+                <option value="Mobile Money">Mobile Money</option>
+            </select>
+        </div>
 
-<br>
-<a href="listePaiements.jsp">Voir la liste des paiements</a>
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="<%= request.getContextPath() %>/paiement?action=dashboard" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

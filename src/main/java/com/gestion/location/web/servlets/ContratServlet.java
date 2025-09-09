@@ -1,50 +1,98 @@
 package com.gestion.location.web.servlets;
 
 import com.gestion.location.entities.Contrat;
+import com.gestion.location.entities.Unite;
+import com.gestion.location.entities.Utilisateur;
 import com.gestion.location.service.ContratService;
-
+import com.gestion.location.service.UniteService;
+import com.gestion.location.service.UtilisateurService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
-@WebServlet("/contrat")
+@WebServlet("/contrats")
 public class ContratServlet extends HttpServlet {
 
     private final ContratService contratService = new ContratService();
+    private final UniteService uniteService = new UniteService();
+    private final UtilisateurService utilisateurService = new UtilisateurService();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        request.setAttribute("contrats", contratService.listerContrats());
-        request.getRequestDispatcher("contrat/liste.jsp").forward(request, response);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action == null) action = "list";
+
+        switch (action) {
+            case "add":
+                List<Unite> unites = uniteService.listerUnites();
+                List<Utilisateur> locataires = utilisateurService.listerParRole("LOCATAIRE");
+                request.setAttribute("unites", unites);
+                request.setAttribute("locataires", locataires);
+                request.getRequestDispatcher("/contrat/form.jsp").forward(request, response);
+                break;
+            case "edit":
+                Long editId = Long.parseLong(request.getParameter("id"));
+                Contrat contrat = contratService.trouverParId(editId);
+                if (contrat != null) {
+                    request.setAttribute("contrat", contrat);
+                    request.getRequestDispatcher("/contrat/form.jsp").forward(request, response);
+                } else {
+                    response.sendRedirect("contrats");
+                }
+                break;
+            case "delete":
+                Long deleteId = Long.parseLong(request.getParameter("id"));
+                Contrat c = contratService.trouverParId(deleteId);
+                if (c != null) {
+                    contratService.supprimer(c);
+                }
+                response.sendRedirect("contrats");
+                break;
+            default:
+                List<Contrat> contrats = contratService.listerContrats();
+                request.setAttribute("contrats", contrats);
+                request.getRequestDispatcher("/contrat/liste.jsp").forward(request, response);
+                break;
+        }
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String idStr = request.getParameter("id");
+        Long id = (idStr != null && !idStr.isEmpty()) ? Long.parseLong(idStr) : null;
 
-        String idParam = request.getParameter("id");
-        String locataireId = request.getParameter("locataireId");
-        String uniteId = request.getParameter("uniteId");
-        String dateDebut = request.getParameter("dateDebut");
-        String dateFin = request.getParameter("dateFin");
+        Long uniteId = Long.parseLong(request.getParameter("uniteId"));
+        Long locataireId = Long.parseLong(request.getParameter("locataireId"));
+        LocalDate dateDebut = LocalDate.parse(request.getParameter("dateDebut"));
+        LocalDate dateFin = LocalDate.parse(request.getParameter("dateFin"));
+        String etat = request.getParameter("etat");
 
-        Contrat contrat = new Contrat();
-        contrat.setDateDebut(LocalDate.parse(dateDebut));
-        contrat.setDateFin(LocalDate.parse(dateFin));
+        Unite unite = uniteService.trouverParId(uniteId);
+        Utilisateur locataire = utilisateurService.trouverParId(locataireId);
 
-        // TODO: récupérer les entités Locataire et Unite depuis leurs DAO respectifs
-        // exemple : contrat.setLocataire(locataireDAO.findById(Long.parseLong(locataireId)));
-
-        if (idParam != null && !idParam.isEmpty()) {
-            contrat.setId(Long.parseLong(idParam));
+        Contrat contrat;
+        if (id == null) {
+            contrat = new Contrat();
+        } else {
+            contrat = contratService.trouverParId(id);
         }
 
-        contratService.ajouterContrat(contrat);
-        response.sendRedirect("contrat");
+        contrat.setUnite(unite);
+        contrat.setLocataire(locataire);
+        contrat.setDateDebut(dateDebut);
+        contrat.setDateFin(dateFin);
+        contrat.setEtat(etat);
+
+        if (id == null) {
+            contratService.ajouter(contrat);
+        } else {
+            contratService.modifier(contrat);
+        }
+
+        response.sendRedirect("contrats");
     }
 }

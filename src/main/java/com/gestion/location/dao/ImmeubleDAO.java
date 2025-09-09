@@ -2,7 +2,6 @@ package com.gestion.location.dao;
 
 import com.gestion.location.entities.Immeuble;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class ImmeubleDAO {
@@ -13,40 +12,17 @@ public class ImmeubleDAO {
         this.em = em;
     }
 
-    public void create(Immeuble immeuble) {
-        try {
-            em.getTransaction().begin();
-            em.persist(immeuble);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+    public void save(Immeuble immeuble) {
+        em.persist(immeuble);
     }
 
     public void update(Immeuble immeuble) {
-        try {
-            em.getTransaction().begin();
-            em.merge(immeuble);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+        em.merge(immeuble);
     }
 
-    public void delete(Long id) {
-        try {
-            em.getTransaction().begin();
-            Immeuble immeuble = em.find(Immeuble.class, id);
-            if (immeuble != null) {
-                em.remove(immeuble);
-            }
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+    public boolean delete(Immeuble immeuble) {
+        em.remove(em.contains(immeuble) ? immeuble : em.merge(immeuble));
+        return true;
     }
 
     public Immeuble findById(Long id) {
@@ -54,9 +30,13 @@ public class ImmeubleDAO {
     }
 
     public List<Immeuble> findAll() {
-        TypedQuery<Immeuble> query = em.createQuery("SELECT i FROM Immeuble i", Immeuble.class);
-        return query.getResultList();
+        return em.createQuery("SELECT i FROM Immeuble i", Immeuble.class).getResultList();
+    }
+
+    public List<Immeuble> findByProprietaireId(Long proprietaireId) {
+        return em.createQuery(
+                        "SELECT i FROM Immeuble i WHERE i.proprietaire.id = :pid", Immeuble.class)
+                .setParameter("pid", proprietaireId)
+                .getResultList();
     }
 }
-
-

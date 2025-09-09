@@ -2,65 +2,60 @@ package com.gestion.location.dao;
 
 import com.gestion.location.entities.Paiement;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class PaiementDAO {
-
     private final EntityManager em;
 
-    // Constructeur obligatoire avec EntityManager
-    public PaiementDAO(EntityManager em) {
-        this.em = em;
+    public PaiementDAO(EntityManager em) { this.em = em; }
+
+    public void ajouter(Paiement p) {
+        em.getTransaction().begin();
+        em.persist(p);
+        em.getTransaction().commit();
     }
 
-    // Créer / ajouter un paiement
-    public void save(Paiement paiement) {
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.persist(paiement);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace(); // éventuellement remplacer par un logger
-        }
+    public void modifier(Paiement p) {
+        em.getTransaction().begin();
+        em.merge(p);
+        em.getTransaction().commit();
     }
 
-    // Mettre à jour un paiement
-    public void update(Paiement paiement) {
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.merge(paiement);
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        }
+    public void supprimer(Paiement p) {
+        em.getTransaction().begin();
+        em.remove(em.contains(p) ? p : em.merge(p));
+        em.getTransaction().commit();
     }
 
-    // Supprimer un paiement
-    public void delete(Paiement paiement) {
-        EntityTransaction tx = em.getTransaction();
-        try {
-            tx.begin();
-            em.remove(em.contains(paiement) ? paiement : em.merge(paiement));
-            tx.commit();
-        } catch (Exception e) {
-            if (tx.isActive()) tx.rollback();
-            e.printStackTrace();
-        }
-    }
-
-    // Rechercher un paiement par ID
-    public Paiement findById(Long id) {
+    public Paiement trouverParId(Long id) {
         return em.find(Paiement.class, id);
     }
 
-    // Lister tous les paiements
-    public List<Paiement> findAll() {
-        return em.createQuery("SELECT p FROM Paiement p", Paiement.class)
-                .getResultList();
+    public List<Paiement> lister() {
+        TypedQuery<Paiement> query = em.createQuery("SELECT p FROM Paiement p", Paiement.class);
+        return query.getResultList();
+    }
+
+    public List<Paiement> listerParLocataire(Long locataireId) {
+        TypedQuery<Paiement> query = em.createQuery(
+                "SELECT p FROM Paiement p WHERE p.locataire.id = :id", Paiement.class);
+        query.setParameter("id", locataireId);
+        return query.getResultList();
+    }
+
+    public List<Paiement> listerParUnite(Long uniteId) {
+        TypedQuery<Paiement> query = em.createQuery(
+                "SELECT p FROM Paiement p WHERE p.unite.id = :id", Paiement.class);
+        query.setParameter("id", uniteId);
+        return query.getResultList();
+    }
+
+    // ✅ ajout pour ProprietaireDashboardServlet
+    public List<Paiement> listerParProprietaire(Long proprietaireId) {
+        TypedQuery<Paiement> query = em.createQuery(
+                "SELECT p FROM Paiement p WHERE p.unite.immeuble.proprietaire.id = :id", Paiement.class);
+        query.setParameter("id", proprietaireId);
+        return query.getResultList();
     }
 }

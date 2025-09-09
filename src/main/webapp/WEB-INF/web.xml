@@ -6,23 +6,31 @@
 
   <display-name>gesLocation</display-name>
 
-  <!-- Déclaration du Servlet Immeuble -->
+  <!-- AuthServlet pour le login -->
+  <servlet>
+    <servlet-name>AuthServlet</servlet-name>
+    <servlet-class>com.gestion.location.web.servlets.AuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AuthServlet</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+
+  <!-- ImmeubleServlet -->
   <servlet>
     <servlet-name>ImmeubleServlet</servlet-name>
     <servlet-class>com.gestion.location.web.servlets.ImmeubleServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>ImmeubleServlet</servlet-name>
     <url-pattern>/immeuble</url-pattern>
   </servlet-mapping>
 
-  <!-- Déclaration du Servlet Unite -->
+  <!-- UniteServlet -->
   <servlet>
     <servlet-name>UniteServlet</servlet-name>
     <servlet-class>com.gestion.location.web.servlets.UniteServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>UniteServlet</servlet-name>
     <url-pattern>/unite</url-pattern>
@@ -30,7 +38,7 @@
 
   <!-- Page d'accueil par défaut -->
   <welcome-file-list>
-    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>login.jsp</welcome-file>
   </welcome-file-list>
 
 </web-app>

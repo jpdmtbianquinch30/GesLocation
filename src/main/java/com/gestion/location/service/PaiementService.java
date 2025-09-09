@@ -2,26 +2,30 @@ package com.gestion.location.service;
 
 import com.gestion.location.dao.PaiementDAO;
 import com.gestion.location.entities.Paiement;
-import com.gestion.location.config.JPAUtil; // ton utilitaire JPA
+import com.gestion.location.config.JPAUtil;
 import jakarta.persistence.EntityManager;
-
 import java.util.List;
 
 public class PaiementService {
+    private final EntityManager em = JPAUtil.getEntityManager();
+    private final PaiementDAO dao = new PaiementDAO(em);
 
-    private final PaiementDAO paiementDAO;
+    public void ajouter(Paiement p) { dao.ajouter(p); }
+    public void modifier(Paiement p) { dao.modifier(p); }
+    public void supprimer(Paiement p) { dao.supprimer(p); }
+    public Paiement trouverParId(Long id) { return dao.trouverParId(id); }
+    public List<Paiement> lister() { return dao.lister(); }
 
-    public PaiementService() {
-        EntityManager em = JPAUtil.getEntityManager(); // récupérer l'EntityManager
-        this.paiementDAO = new PaiementDAO(em);
+    public List<Paiement> listerParLocataire(Long locataireId) {
+        return dao.listerParLocataire(locataireId);
     }
 
-    public void effectuerPaiement(Double montant, String mode) {
-        Paiement paiement = new Paiement(montant, mode, "valide");
-        paiementDAO.save(paiement);
+    public List<Paiement> listerParUnite(Long uniteId) {
+        return dao.listerParUnite(uniteId);
     }
 
-    public List<Paiement> listerPaiements() {
-        return paiementDAO.findAll();
+    // ✅ ajout pour ProprietaireDashboardServlet
+    public List<Paiement> listerParProprietaire(Long proprietaireId) {
+        return dao.listerParProprietaire(proprietaireId);
     }
 }

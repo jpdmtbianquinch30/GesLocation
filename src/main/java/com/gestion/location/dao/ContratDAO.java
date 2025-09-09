@@ -6,62 +6,43 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 public class ContratDAO {
-
     private final EntityManager em;
 
     public ContratDAO(EntityManager em) {
         this.em = em;
     }
 
-    public void create(Contrat contrat) {
-        try {
-            em.getTransaction().begin();
-            em.persist(contrat);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+    public void ajouter(Contrat c) {
+        em.getTransaction().begin();
+        em.persist(c);
+        em.getTransaction().commit();
     }
 
-    public void update(Contrat contrat) {
-        try {
-            em.getTransaction().begin();
-            em.merge(contrat);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+    public void modifier(Contrat c) {
+        em.getTransaction().begin();
+        em.merge(c);
+        em.getTransaction().commit();
     }
 
-    public void delete(Long id) {
-        try {
-            em.getTransaction().begin();
-            Contrat contrat = em.find(Contrat.class, id);
-            if (contrat != null) {
-                em.remove(contrat);
-            }
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            e.printStackTrace();
-        }
+    public void supprimer(Contrat c) {
+        em.getTransaction().begin();
+        em.remove(em.contains(c) ? c : em.merge(c));
+        em.getTransaction().commit();
     }
 
-    public Contrat findById(Long id) {
+    public Contrat trouverParId(Long id) {
         return em.find(Contrat.class, id);
     }
 
-    public List<Contrat> findAll() {
+    public List<Contrat> lister() {
         TypedQuery<Contrat> query = em.createQuery("SELECT c FROM Contrat c", Contrat.class);
         return query.getResultList();
     }
 
-    public List<Contrat> findByLocataire(Long locataireId) {
+    public List<Contrat> listerParProprietaire(Long proprietaireId) {
         TypedQuery<Contrat> query = em.createQuery(
-                "SELECT c FROM Contrat c WHERE c.locataire.id = :locataireId", Contrat.class);
-        query.setParameter("locataireId", locataireId);
+                "SELECT c FROM Contrat c WHERE c.unite.immeuble.proprietaire.id = :id", Contrat.class);
+        query.setParameter("id", proprietaireId);
         return query.getResultList();
     }
 }
