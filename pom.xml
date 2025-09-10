@@ -47,18 +47,24 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- JSP et JSTL (Tomcat 10 compatible) -->
+    <!-- JSTL API (Jakarta EE 9+) -->
     <dependency>
       <groupId>jakarta.servlet.jsp.jstl</groupId>
       <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
       <version>2.0.0</version>
-      <scope>provided</scope>
     </dependency>
+
+    <!-- Implémentation JSTL -->
     <dependency>
       <groupId>org.glassfish.web</groupId>
       <artifactId>jakarta.servlet.jsp.jstl</artifactId>
       <version>2.0.0</version>
-      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>jakarta.servlet.jsp.jstl</groupId>
+          <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Hibernate Core Jakarta -->

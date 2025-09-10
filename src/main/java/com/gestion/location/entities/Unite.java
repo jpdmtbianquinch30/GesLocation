@@ -3,44 +3,118 @@ package com.gestion.location.entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "unite")
+@Table(name = "unites")
 public class Unite {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String numero;
-    private Integer pieces;
-    private Double superficie;
-    private Double loyer;
-    private String etat; // Disponible, Louee, En attente, etc.
+    @Column(name = "numero_unite", nullable = false)
+    private String numeroUnite;
+
+    @Column(name = "nombre_pieces", nullable = false)
+    private int nombrePieces;
+
+    @Column(nullable = false)
+    private double superficie;
+
+    @Column(name = "loyer_mensuel", nullable = false)
+    private double loyerMensuel;
+
+    @Column(name = "est_disponible")
+    private boolean estDisponible = true;
+
+    private String description;
 
     @ManyToOne
-    @JoinColumn(name = "immeuble_id")
+    @JoinColumn(name = "immeuble_id", nullable = false)
     private Immeuble immeuble;
 
-    public Unite() {}
+    @OneToOne(mappedBy = "unite")
+    private Contrat contrat;
 
-    // Getters et setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // Constructeurs
+    public Unite() {
+    }
 
-    public String getNumero() { return numero; }
-    public void setNumero(String numero) { this.numero = numero; }
+    public Unite(String numeroUnite, int nombrePieces, double superficie, double loyerMensuel, String description) {
+        this.numeroUnite = numeroUnite;
+        this.nombrePieces = nombrePieces;
+        this.superficie = superficie;
+        this.loyerMensuel = loyerMensuel;
+        this.description = description;
+    }
 
-    public Integer getPieces() { return pieces; }
-    public void setPieces(Integer pieces) { this.pieces = pieces; }
+    // Getters et Setters
+    public Long getId() {
+        return id;
+    }
 
-    public Double getSuperficie() { return superficie; }
-    public void setSuperficie(Double superficie) { this.superficie = superficie; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Double getLoyer() { return loyer; }
-    public void setLoyer(Double loyer) { this.loyer = loyer; }
+    public String getNumeroUnite() {
+        return numeroUnite;
+    }
 
-    public String getEtat() { return etat; }
-    public void setEtat(String etat) { this.etat = etat; }
+    public void setNumeroUnite(String numeroUnite) {
+        this.numeroUnite = numeroUnite;
+    }
 
-    public Immeuble getImmeuble() { return immeuble; }
-    public void setImmeuble(Immeuble immeuble) { this.immeuble = immeuble; }
+    public int getNombrePieces() {
+        return nombrePieces;
+    }
+
+    public void setNombrePieces(int nombrePieces) {
+        this.nombrePieces = nombrePieces;
+    }
+
+    public double getSuperficie() {
+        return superficie;
+    }
+
+    public void setSuperficie(double superficie) {
+        this.superficie = superficie;
+    }
+
+    public double getLoyerMensuel() {
+        return loyerMensuel;
+    }
+
+    public void setLoyerMensuel(double loyerMensuel) {
+        this.loyerMensuel = loyerMensuel;
+    }
+
+    public boolean isEstDisponible() {
+        return estDisponible;
+    }
+
+    public void setEstDisponible(boolean estDisponible) {
+        this.estDisponible = estDisponible;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Immeuble getImmeuble() {
+        return immeuble;
+    }
+
+    public void setImmeuble(Immeuble immeuble) {
+        this.immeuble = immeuble;
+    }
+
+    public Contrat getContrat() {
+        return contrat;
+    }
+
+    public void setContrat(Contrat contrat) {
+        this.contrat = contrat;
+    }
 }

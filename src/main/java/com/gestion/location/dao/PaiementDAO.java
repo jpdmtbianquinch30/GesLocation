@@ -1,61 +1,117 @@
 package com.gestion.location.dao;
 
+import com.gestion.location.entities.Contrat;
+import com.gestion.location.entities.Locataire;
 import com.gestion.location.entities.Paiement;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
+import java.time.LocalDate;
 import java.util.List;
 
 public class PaiementDAO {
-    private final EntityManager em;
+    private final EntityManager entityManager;
 
-    public PaiementDAO(EntityManager em) { this.em = em; }
-
-    public void ajouter(Paiement p) {
-        em.getTransaction().begin();
-        em.persist(p);
-        em.getTransaction().commit();
+    public PaiementDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
-    public void modifier(Paiement p) {
-        em.getTransaction().begin();
-        em.merge(p);
-        em.getTransaction().commit();
+    public void create(Paiement paiement) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            entityManager.persist(paiement);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
-    public void supprimer(Paiement p) {
-        em.getTransaction().begin();
-        em.remove(em.contains(p) ? p : em.merge(p));
-        em.getTransaction().commit();
+    public Paiement findById(Long id) {
+        return entityManager.find(Paiement.class, id);
     }
 
-    public Paiement trouverParId(Long id) {
-        return em.find(Paiement.class, id);
-    }
-
-    public List<Paiement> lister() {
-        TypedQuery<Paiement> query = em.createQuery("SELECT p FROM Paiement p", Paiement.class);
+    public List<Paiement> findAll() {
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p", Paiement.class);
         return query.getResultList();
     }
 
-    public List<Paiement> listerParLocataire(Long locataireId) {
-        TypedQuery<Paiement> query = em.createQuery(
-                "SELECT p FROM Paiement p WHERE p.locataire.id = :id", Paiement.class);
-        query.setParameter("id", locataireId);
+    public List<Paiement> findByLocataire(Locataire locataire) {
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p WHERE p.locataire = :locataire", Paiement.class);
+        query.setParameter("locataire", locataire);
         return query.getResultList();
     }
 
-    public List<Paiement> listerParUnite(Long uniteId) {
-        TypedQuery<Paiement> query = em.createQuery(
-                "SELECT p FROM Paiement p WHERE p.unite.id = :id", Paiement.class);
-        query.setParameter("id", uniteId);
+    public List<Paiement> findByContrat(Contrat contrat) {
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p WHERE p.contrat = :contrat", Paiement.class);
+        query.setParameter("contrat", contrat);
         return query.getResultList();
     }
 
-    // ✅ ajout pour ProprietaireDashboardServlet
-    public List<Paiement> listerParProprietaire(Long proprietaireId) {
-        TypedQuery<Paiement> query = em.createQuery(
-                "SELECT p FROM Paiement p WHERE p.unite.immeuble.proprietaire.id = :id", Paiement.class);
-        query.setParameter("id", proprietaireId);
+    public List<Paiement> findByStatut(String statut) {
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p WHERE p.statutPaiement = :statut", Paiement.class);
+        query.setParameter("statut", statut);
         return query.getResultList();
+    }
+
+    public List<Paiement> findByMoisCouvert(String moisCouvert) {
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p WHERE p.moisCouvert = :moisCouvert", Paiement.class);
+        query.setParameter("moisCouvert", moisCouvert);
+        return query.getResultList();
+    }
+
+    public List<Paiement> findPaiementsEnRetard() {
+        LocalDate aujourdhui = LocalDate.now();
+        TypedQuery<Paiement> query = entityManager.createQuery(
+                "SELECT p FROM Paiement p WHERE p.statutPaiement = 'EN_ATTENTE' AND p.datePaiement < :aujourdhui", Paiement.class);
+        query.setParameter("aujourdhui", aujourdhui);
+        return query.getResultList();
+    }
+
+    public double getTotalPaiementsMois(String moisCouvert) {
+        TypedQuery<Double> query = entityManager.createQuery(
+                "SELECT SUM(p.montant) FROM Paiement p WHERE p.moisCouvert = :moisCouvert AND p.statutPaiement = 'VALIDE'", Double.class);
+        query.setParameter("moisCouvert", moisCouvert);
+        Double result = query.getSingleResult();
+        return result != null ? result : 0.0;
+    }
+
+    public void update(Paiement paiement) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            entityManager.merge(paiement);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
+    public void delete(Long id) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Paiement paiement = entityManager.find(Paiement.class, id);
+            if (paiement != null) {
+                entityManager.remove(paiement);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }

@@ -10,7 +10,7 @@
         <class>com.gestion.location.entities.Locataire</class>
         <class>com.gestion.location.entities.Contrat</class>
         <class>com.gestion.location.entities.Paiement</class>
-
+        <class>com.gestion.location.entities.Proprietaire</class>
         <properties>
             <!-- Connexion PostgreSQL -->
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
