@@ -2,9 +2,11 @@ package com.gestion.location.service;
 
 import com.gestion.location.dao.LocataireDAO;
 import com.gestion.location.entities.Locataire;
+import com.gestion.location.entities.Utilisateur;
 import com.gestion.location.util.JpaUtil;
 import jakarta.persistence.EntityManager;
-import java.util.List;
+import jakarta.persistence.EntityTransaction;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class LocataireService {
     private final EntityManager entityManager;
@@ -15,44 +17,48 @@ public class LocataireService {
         this.locataireDAO = new LocataireDAO(entityManager);
     }
 
-    public Locataire trouverLocataireParId(Long id) {
+    // 🔹 Création complète d'un locataire
+    public Locataire creerLocataire(String nom, String prenom, String email, String motDePasse,
+                                    String telephone, String profession) {
+        EntityTransaction tx = entityManager.getTransaction();
         try {
-            return locataireDAO.findById(id);
+            tx.begin();
+
+            String motDePasseHash = BCrypt.hashpw(motDePasse, BCrypt.gensalt());
+
+            Locataire locataire = new Locataire();
+            locataire.setNom(nom);
+            locataire.setPrenom(prenom);
+            locataire.setEmail(email);
+            locataire.setMotDePasse(motDePasseHash);
+            locataire.setRole("LOCATAIRE");
+            locataire.setNumeroTelephone(telephone);
+            locataire.setProfession(profession);
+
+            locataireDAO.create(locataire);
+
+            tx.commit();
+            return locataire;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche du locataire: " + e.getMessage(), e);
+            if (tx.isActive()) tx.rollback();
+            throw new RuntimeException("Erreur lors de la création du locataire : " + e.getMessage(), e);
         }
     }
 
-    public List<Locataire> listerTousLesLocataires() {
-        try {
-            return locataireDAO.findAll();
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du listing des locataires: " + e.getMessage(), e);
-        }
+    // 🔹 Trouver locataire par utilisateurId
+    public Locataire trouverLocataireParUtilisateurId(Long utilisateurId) {
+        return locataireDAO.findByUtilisateurId(utilisateurId);
     }
 
+    // 🔹 Trouver locataire par Utilisateur (utile pour la session)
+    public Locataire trouverLocataireParUtilisateur(Utilisateur utilisateur) {
+        if (utilisateur == null) return null;
+        return trouverLocataireParUtilisateurId(utilisateur.getId());
+    }
+
+    // 🔹 Trouver locataire par email
     public Locataire trouverLocataireParEmail(String email) {
-        try {
-            return locataireDAO.findByEmail(email);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche du locataire par email: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Locataire> trouverLocatairesParNom(String nom) {
-        try {
-            return locataireDAO.findByNom(nom);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche des locataires par nom: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Locataire> trouverLocatairesParProfession(String profession) {
-        try {
-            return locataireDAO.findByProfession(profession);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche des locataires par profession: " + e.getMessage(), e);
-        }
+        return locataireDAO.findByEmail(email);
     }
 
     public void close() {

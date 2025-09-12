@@ -1,41 +1,102 @@
-/* locataire.css */
-.locataire-sidebar {
+/* ----------------- Dashboard Styles ----------------- */
+.dashboard-header {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
     background: #27ae60;
     color: white;
-    width: 250px;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
-    padding-top: 60px;
 }
 
-.locataire-sidebar .nav-item {
-    padding: 15px 20px;
-    border-bottom: 1px solid #219653;
-    cursor: pointer;
+.stat-info h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
 }
 
-.locataire-sidebar .nav-item:hover {
-    background: #219653;
+.stat-info p {
+    margin: 3px 0 0 0;
+    color: #666;
 }
 
-.locataire-sidebar .nav-item.active {
-    background: #2ecc71;
+/* Contrats Cards */
+.contrat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    border-left: 4px solid #3498db;
+    transition: transform 0.2s;
 }
 
+.contrat-card:hover {
+    transform: translateY(-3px);
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: white;
+}
+
+.status-badge.actif { background: #27ae60; }
+.status-badge.en_attente { background: #ffc107; color: #333; }
+.status-badge.termine { background: #6c757d; }
+
+/* Next Payment Card (réécriture pour éviter le doublon) */
 .next-payment-card {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 20px;
-    border-radius: 8px;
+    padding: 25px 20px;
+    border-radius: 12px;
     margin: 20px 0;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
 }
 
-.next-payment-card h3 {
-    margin-top: 0;
-    color: white;
+.next-payment-card:hover {
+    transform: translateY(-2px);
 }
 
 .payment-details p {
@@ -43,212 +104,542 @@
     font-size: 16px;
 }
 
-.offres-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin: 20px 0;
+/* Quick Actions Buttons */
+.quick-actions {
+    margin-top: 40px;
 }
 
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.action-buttons .btn-primary {
+    background: #27ae60;
+    color: white;
+}
+
+.action-buttons .btn-primary:hover {
+    background: #2ecc71;
+    transform: translateY(-2px);
+}
+
+.action-buttons .btn-secondary {
+    background: #3498db;
+    color: white;
+}
+
+.action-buttons .btn-secondary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Responsive Dashboard */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .next-payment-card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
+        gap: 15px;
+    }
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+/* ----------------- Offres Page Enhancements ----------------- */
+
+/* Page header */
+.page-header {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+/* Offres grid */
+.offres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* Offre card */
 .offre-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
 }
 
 .offre-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.2);
 }
 
+/* Image section */
 .offre-image {
+    width: 100%;
     height: 200px;
     overflow: hidden;
+    border-bottom: 1px solid #ddd;
+    position: relative;
 }
 
 .offre-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s;
 }
 
+.offre-card:hover .offre-image img {
+    transform: scale(1.05);
+}
+
+/* Content section */
 .offre-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .offre-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+}
+
+.offre-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
 }
 
 .offre-price {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: bold;
     color: #27ae60;
 }
 
+/* Details */
 .offre-details {
-    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .detail-item {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    gap: 8px;
     color: #666;
-}
-
-.detail-icon {
-    margin-right: 10px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .offre-description {
-    margin-bottom: 15px;
-    color: #666;
+    color: #555;
     line-height: 1.5;
 }
 
+/* Action buttons */
 .offre-actions {
     display: flex;
     gap: 10px;
+    margin-top: auto;
 }
 
-.filters-section {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.filter-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-group label {
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.filter-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.no-results {
+.offre-actions .btn {
+    flex: 1;
     text-align: center;
-    padding: 40px;
-    color: #666;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.2s;
 }
 
+.offre-actions .btn-primary {
+    background: #27ae60;
+    color: white;
+}
+
+.offre-actions .btn-primary:hover {
+    background: #2ecc71;
+    transform: translateY(-2px);
+}
+
+.offre-actions .btn-secondary {
+    background: #3498db;
+    color: white;
+}
+
+.offre-actions .btn-secondary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.modal-close {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+}
+
+.offre-details-modal h3 {
+    margin-top: 0;
+    color: #27ae60;
+}
+
+.offre-details-modal p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .offres-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .offre-actions {
+        flex-direction: column;
+    }
+
+    .offre-actions .btn {
+        width: 100%;
+    }
+
+    .offre-image {
+        height: 250px;
+    }
+}
+/* ----------------- Demande de Location Enhancements ----------------- */
+
+/* Page header */
+.page-header {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+/* Contenu de la demande */
 .demande-content {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 30px;
+    margin-bottom: 30px;
 }
 
+/* Carte de l'unité sélectionnée */
 .unite-selectionnee {
     background: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: fit-content;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .unite-card {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 6px;
-    border-left: 4px solid #27ae60;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.unite-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.unite-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.unite-card:hover .unite-image img {
+    transform: scale(1.05);
 }
 
 .unite-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+}
+
+.unite-header h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
 }
 
 .unite-price {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     color: #27ae60;
 }
 
+/* Détails */
+.unite-details p {
+    margin: 5px 0;
+    color: #555;
+}
+
+/* Formulaire */
 .demande-form-container {
     background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
 }
 
 .form-summary {
     background: #f8f9fa;
     padding: 15px;
-    border-radius: 6px;
-    margin: 20px 0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .summary-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #ddd;
 }
 
 .summary-item.total {
     font-weight: bold;
-    border-bottom: none;
-    font-size: 18px;
+    font-size: 16px;
     color: #27ae60;
 }
 
+/* Boutons */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.form-actions .btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.form-actions .btn-primary {
+    background: #27ae60;
+    color: white;
+}
+
+.form-actions .btn-primary:hover {
+    background: #2ecc71;
+    transform: translateY(-2px);
+}
+
+.form-actions .btn-secondary {
+    background: #3498db;
+    color: white;
+}
+
+.form-actions .btn-secondary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Aucunité sélectionnée */
 .no-unite-selected {
     text-align: center;
     padding: 40px;
     color: #666;
+    background: #f8f9fa;
+    border-radius: 8px;
 }
 
+@media (max-width: 768px) {
+    .demande-content {
+        grid-template-columns: 1fr;
+    }
+
+    .unite-image {
+        height: 250px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+/* ----------------- Mes Paiements Enhancements ----------------- */
+
+/* Page header */
+.page-header {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+/* Résumé financier */
+.financial-summary {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.summary-card h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.summary-amount {
+    font-size: 28px;
+    font-weight: bold;
+    color: #27ae60;
+    margin-top: 10px;
+}
+
+/* Filtres */
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-form label {
+    font-weight: 500;
+}
+
+.filter-form select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+/* Cartes de paiement */
 .paiements-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin: 20px 0;
 }
 
 .paiement-card {
     background: white;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     border-left: 4px solid #ddd;
 }
 
-.paiement-card.en_attente {
-    border-left-color: #ffc107;
-}
-
-.paiement-card.valide {
-    border-left-color: #28a745;
-}
-
-.paiement-card.refuse {
-    border-left-color: #dc3545;
-}
+.paiement-card.en_attente { border-left-color: #ffc107; }
+.paiement-card.valide { border-left-color: #28a745; }
+.paiement-card.refuse { border-left-color: #dc3545; }
 
 .paiement-header {
     display: flex;
@@ -258,7 +649,7 @@
 }
 
 .statut-badge {
-    padding: 4px 8px;
+    padding: 5px 10px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
@@ -268,17 +659,15 @@
 .statut-badge.valide { background: #d4edda; color: #155724; }
 .statut-badge.refuse { background: #f8d7da; color: #721c24; }
 
-.paiement-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.detail-row {
+.paiement-details .detail-row {
     display: flex;
     justify-content: space-between;
     padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.paiement-details .detail-row:last-child {
+    border-bottom: none;
 }
 
 .detail-label {
@@ -288,39 +677,43 @@
 
 .detail-value {
     font-weight: 600;
+    color: #333;
 }
 
-.financial-summary {
-    margin: 20px 0;
+/* Boutons */
+.paiement-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
 }
 
-.summary-card {
-    background: white;
-    padding: 20px;
+.paiement-actions .btn {
+    padding: 10px 15px;
     border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.summary-amount {
-    font-size: 32px;
-    font-weight: bold;
-    color: #27ae60;
-    margin: 10px 0 0 0;
-}
+.btn-primary { background: #27ae60; color: white; }
+.btn-primary:hover { background: #2ecc71; }
 
+.btn-secondary { background: #3498db; color: white; }
+.btn-secondary:hover { background: #2980b9; }
+
+/* Prochain paiement */
 .next-payment-section {
-    margin: 30px 0;
+    margin-top: 30px;
 }
 
 .next-payment-card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
     border-left: 4px solid #ffc107;
 }
 
@@ -334,71 +727,70 @@
     color: #666;
 }
 
-.no-paiements {
-    text-align: center;
-    padding: 40px;
-    color: #666;
+/* Modal Paiement */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
-.contrats-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    margin: 15px 0;
-}
-
-.contrat-card {
+.modal-content {
     background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-left: 4px solid #3498db;
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
 }
 
-.contrat-header {
+.modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
 }
 
-.contrat-details p {
-    margin: 5px 0;
-    color: #666;
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
 }
 
-.no-data {
-    text-align: center;
-    color: #666;
-    margin: 20px 0;
+.modal-body .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.modal-body .form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 @media (max-width: 768px) {
-    .locataire-sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-    }
-
-    .main-content {
-        margin-left: 0;
-    }
-
-    .demande-content {
-        grid-template-columns: 1fr;
-    }
-
-    .offres-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filter-row {
-        grid-template-columns: 1fr;
-    }
-
     .next-payment-card {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+
+    .paiement-card {
+        padding: 15px;
+    }
+
+    .modal-content {
+        width: 95%;
     }
 }

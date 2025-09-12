@@ -68,15 +68,15 @@
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>123 Rue de l'Immobilier, 75000 Paris</span>
+                        <span>Jaxaay, Keur Massar, Dakar, Senegal </span>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone"></i>
-                        <span>+33 1 23 45 67 89</span>
+                        <span>+221 70 767 27 92</span>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
-                        <span>contact@gestionlocation.fr</span>
+                        <span>jeanphilippebianquinch@gmail.com</span>
                     </div>
                 </div>
             </div>
@@ -84,11 +84,11 @@
 
         <div class="footer-bottom">
             <div class="footer-bottom-content">
-                <p>&copy; 2024 GestionLocation. Tous droits réservés.</p>
+                <p>&copy; 2025 GestionLocation. Tous droits réservés.</p>
                 <div class="footer-bottom-links">
-                    <span>Développé avec</span>
+                    <span>Développé avec Mouha Kane </span>
                     <i class="fas fa-heart" style="color: #e74c3c;"></i>
-                    <span>par votre équipe</span>
+                    <span>par TeamProj</span>
                 </div>
             </div>
         </div>

@@ -84,8 +84,9 @@ public class UtilisateurDAO {
 
     public boolean emailExists(String email) {
         TypedQuery<Long> query = entityManager.createQuery(
-                "SELECT COUNT(u) FROM Utilisateur u WHERE u.email = :email", Long.class);
-        query.setParameter("email", email);
+                "SELECT COUNT(u) FROM Utilisateur u WHERE LOWER(u.email) = :email", Long.class);
+        query.setParameter("email", email.toLowerCase());
         return query.getSingleResult() > 0;
+
     }
 }

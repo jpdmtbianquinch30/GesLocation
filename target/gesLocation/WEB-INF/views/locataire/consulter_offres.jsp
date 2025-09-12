@@ -4,16 +4,19 @@
 <html>
 <head>
     <title>Consulter les Offres</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/locataire.css">
 </head>
-<body>
+<body class="bg-light">
 <%@ include file="/WEB-INF/views/shared/header.jsp" %>
 <%@ include file="/WEB-INF/views/shared/sidebar.jsp" %>
 
-<div class="main-content">
-    <div class="page-header">
-        <h1>Consulter les Offres de Location</h1>
+<div class="container-fluid main-content py-4">
+    <div class="page-header mb-4">
+        <h1 class="fw-bold text-primary">🏠 Consulter les Offres de Location</h1>
     </div>
 
     <c:if test="${not empty errorMessage}">
@@ -21,83 +24,66 @@
     </c:if>
 
     <!-- Filtres de recherche -->
-    <div class="filters-section">
-        <h3>Filtrer les résultats</h3>
-        <form method="get" class="filters-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="prixMin">Prix min (€):</label>
-                    <input type="number" id="prixMin" name="prixMin" value="${filtres.prixMin}" min="0" step="50">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">🔍 Filtrer les résultats</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="prixMin" class="form-label">Prix min (€)</label>
+                    <input type="number" class="form-control" id="prixMin" name="prixMin"
+                           value="${filtres.prixMin}" min="0" step="50">
                 </div>
-
-                <div class="filter-group">
-                    <label for="prixMax">Prix max (€):</label>
-                    <input type="number" id="prixMax" name="prixMax" value="${filtres.prixMax}" min="0" step="50">
+                <div class="col-md-3">
+                    <label for="prixMax" class="form-label">Prix max (€)</label>
+                    <input type="number" class="form-control" id="prixMax" name="prixMax"
+                           value="${filtres.prixMax}" min="0" step="50">
                 </div>
-
-                <div class="filter-group">
-                    <label for="pieces">Nombre de pièces:</label>
-                    <input type="number" id="pieces" name="pieces" value="${filtres.pieces}" min="1" max="10">
+                <div class="col-md-3">
+                    <label for="pieces" class="form-label">Nombre de pièces</label>
+                    <input type="number" class="form-control" id="pieces" name="pieces"
+                           value="${filtres.pieces}" min="1" max="10">
                 </div>
-
-                <div class="filter-group">
-                    <label for="superficie">Superficie min (m²):</label>
-                    <input type="number" id="superficie" name="superficie" value="${filtres.superficie}" min="0" step="5">
+                <div class="col-md-3">
+                    <label for="superficie" class="form-label">Superficie min (m²)</label>
+                    <input type="number" class="form-control" id="superficie" name="superficie"
+                           value="${filtres.superficie}" min="0" step="5">
                 </div>
-            </div>
-
-            <div class="filter-actions">
-                <button type="submit" class="btn btn-primary">Appliquer les filtres</button>
-                <a href="${pageContext.request.contextPath}/locataire/offres" class="btn btn-secondary">Réinitialiser</a>
-            </div>
-        </form>
+                <div class="col-12 text-end mt-3">
+                    <button type="submit" class="btn btn-primary me-2">Appliquer</button>
+                    <a href="${pageContext.request.contextPath}/locataire/offres" class="btn btn-outline-secondary">Réinitialiser</a>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Liste des offres -->
-    <div class="offres-grid">
+    <div class="row g-4">
         <c:forEach var="offre" items="${offres}">
-            <div class="offre-card">
-                <div class="offre-image">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
                     <img src="${pageContext.request.contextPath}/assets/img/appartment-placeholder.jpg"
-                         alt="Appartement ${offre.numeroUnite}">
-                </div>
-
-                <div class="offre-content">
-                    <div class="offre-header">
-                        <h3>Appartement ${offre.numeroUnite}</h3>
-                        <span class="offre-price">${offre.loyerMensuel} €/mois</span>
-                    </div>
-
-                    <div class="offre-details">
-                        <div class="detail-item">
-                            <span class="detail-icon">🏢</span>
-                            <span>${offre.immeuble.nom}</span>
+                         class="card-img-top" alt="Appartement ${offre.numeroUnite}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Appartement ${offre.numeroUnite}</h5>
+                            <span class="badge bg-success fs-6">${offre.loyerMensuel} €/mois</span>
                         </div>
-
-                        <div class="detail-item">
-                            <span class="detail-icon">📍</span>
-                            <span>${offre.immeuble.adresse}</span>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li>🏢 ${offre.immeuble.nom}</li>
+                            <li>📍 ${offre.immeuble.adresse}</li>
+                            <li>🚪 ${offre.nombrePieces} pièce(s)</li>
+                            <li>📐 ${offre.superficie} m²</li>
+                        </ul>
+                        <p class="card-text">${offre.description}</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="${pageContext.request.contextPath}/locataire/demande-location?uniteId=${offre.id}"
+                               class="btn btn-primary btn-sm">Faire une demande</a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="showDetails(${offre.id})">
+                                Voir détails
+                            </button>
                         </div>
-
-                        <div class="detail-item">
-                            <span class="detail-icon">🚪</span>
-                            <span>${offre.nombrePieces} pièce(s)</span>
-                        </div>
-
-                        <div class="detail-item">
-                            <span class="detail-icon">📐</span>
-                            <span>${offre.superficie} m²</span>
-                        </div>
-                    </div>
-
-                    <div class="offre-description">
-                        <p>${offre.description}</p>
-                    </div>
-
-                    <div class="offre-actions">
-                        <a href="${pageContext.request.contextPath}/locataire/demande-location?uniteId=${offre.id}"
-                           class="btn btn-primary">Faire une demande</a>
-                        <button class="btn btn-secondary" onclick="showDetails(${offre.id})">Voir détails</button>
                     </div>
                 </div>
             </div>
@@ -105,64 +91,57 @@
     </div>
 
     <c:if test="${empty offres}">
-        <div class="no-results">
-            <h3>Aucune offre ne correspond à vos critères</h3>
+        <div class="alert alert-warning mt-4 text-center">
+            <h5>Aucune offre ne correspond à vos critères</h5>
             <p>Essayez de modifier vos filtres de recherche.</p>
         </div>
     </c:if>
 </div>
 
-<!-- Modal de détails -->
-<div class="modal-overlay" id="detailsModal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Détails de l'offre</h2>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="modal-body" id="modalBody">
-            <!-- Contenu chargé dynamiquement -->
+<!-- Modal de détails (Bootstrap modal au lieu du custom) -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Détails de l'offre</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     function showDetails(uniteId) {
-        // Charger les détails de l'unité via AJAX
         fetch('${pageContext.request.contextPath}/api/unites/' + uniteId)
             .then(response => response.json())
             .then(data => {
                 const modalBody = document.getElementById('modalBody');
                 modalBody.innerHTML = `
-                        <div class="offre-details-modal">
-                            <h3>Appartement \${data.numeroUnite}</h3>
-                            <p><strong>Immeuble:</strong> \${data.immeuble.nom}</p>
-                            <p><strong>Adresse:</strong> \${data.immeuble.adresse}</p>
-                            <p><strong>Loyer:</strong> \${data.loyerMensuel} €/mois</p>
-                            <p><strong>Pièces:</strong> \${data.nombrePieces}</p>
-                            <p><strong>Superficie:</strong> \${data.superficie} m²</p>
-                            <p><strong>Description:</strong> \${data.description}</p>
-                            <p><strong>Équipements:</strong> \${data.immeuble.equipements}</p>
-                        </div>
-                    `;
-                document.getElementById('detailsModal').style.display = 'flex';
+                    <h4>Appartement \${data.numeroUnite}</h4>
+                    <ul>
+                        <li><strong>Immeuble:</strong> \${data.immeuble.nom}</li>
+                        <li><strong>Adresse:</strong> \${data.immeuble.adresse}</li>
+                        <li><strong>Loyer:</strong> \${data.loyerMensuel} €/mois</li>
+                        <li><strong>Pièces:</strong> \${data.nombrePieces}</li>
+                        <li><strong>Superficie:</strong> \${data.superficie} m²</li>
+                        <li><strong>Description:</strong> \${data.description}</li>
+                        <li><strong>Équipements:</strong> \${data.immeuble.equipements}</li>
+                    </ul>
+                `;
+                const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+                modal.show();
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 alert('Impossible de charger les détails');
             });
     }
-
-    function closeModal() {
-        document.getElementById('detailsModal').style.display = 'none';
-    }
-
-    // Fermer la modal en cliquant à l'extérieur
-    document.addEventListener('click', function(event) {
-        const modal = document.getElementById('detailsModal');
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
 </script>
 
 <%@ include file="/WEB-INF/views/shared/footer.jsp" %>

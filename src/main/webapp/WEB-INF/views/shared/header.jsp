@@ -229,4 +229,4 @@
 </div>
 
 <!-- Main Content Wrapper -->
-<div class="main-wrapper">
+<div class="main-wrapper"/>

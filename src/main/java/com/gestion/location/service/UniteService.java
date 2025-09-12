@@ -19,7 +19,7 @@ public class UniteService {
     public Unite creerUnite(String numeroUnite, int nombrePieces, double superficie,
                             double loyerMensuel, String description, Immeuble immeuble) {
         try {
-            Unite unite = new Unite(numeroUnite, nombrePieces, superficie, loyerMensuel, description);
+            Unite unite = new Unite(numeroUnite, nombrePieces, superficie, loyerMensuel, description, immeuble);
             unite.setImmeuble(immeuble);
 
             uniteDAO.create(unite);

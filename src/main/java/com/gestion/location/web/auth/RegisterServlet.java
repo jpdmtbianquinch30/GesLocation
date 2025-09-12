@@ -2,7 +2,6 @@ package com.gestion.location.web.auth;
 
 import com.gestion.location.entities.Locataire;
 import com.gestion.location.entities.Proprietaire;
-import com.gestion.location.entities.Utilisateur;
 import com.gestion.location.service.LocataireService;
 import com.gestion.location.service.ProprietaireService;
 import com.gestion.location.service.UtilisateurService;
@@ -18,20 +17,27 @@ import java.io.IOException;
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
-            Utilisateur user = (Utilisateur) session.getAttribute("user");
-            // CORRECTION : Ajouter le paramètre request
-            redirectToDashboard(user.getRole(), response, request);
-            return;
+            Object user = session.getAttribute("user");
+
+            if (user instanceof Locataire) {
+                redirectToDashboard(((Locataire) user).getRole(), response, request);
+                return;
+            } else if (user instanceof Proprietaire) {
+                redirectToDashboard(((Proprietaire) user).getRole(), response, request);
+                return;
+            }
         }
 
         request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -43,7 +49,6 @@ public class RegisterServlet extends HttpServlet {
         String role = request.getParameter("role");
         String telephone = request.getParameter("telephone");
 
-        // Validation des données
         if (!password.equals(confirmPassword)) {
             request.setAttribute("errorMessage", "Les mots de passe ne correspondent pas");
             request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
@@ -60,56 +65,46 @@ public class RegisterServlet extends HttpServlet {
 
         UtilisateurService userService = new UtilisateurService();
         try {
-            // Vérifier si l'email existe déjà
             if (userService.emailExiste(email)) {
                 request.setAttribute("errorMessage", "Cet email est déjà utilisé");
                 request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
                 return;
             }
 
-            Utilisateur newUser = null; // DÉCLARATION CORRIGÉE
-
             if ("LOCATAIRE".equals(role)) {
-                // Créer un locataire
                 LocataireService locataireService = new LocataireService();
-                try {
-                    userService.creerUtilisateur(nom, prenom, email, password, role);
-                    newUser = locataireService.trouverLocataireParEmail(email);
-                    locataireService.close();
-                } catch (Exception e) {
-                    request.setAttribute("errorMessage", "Erreur lors de la création du locataire: " + e.getMessage());
-                    request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
-                    return;
-                }
+                Locataire locataireCree = locataireService.creerLocataire(
+                        nom, prenom, email, password, telephone, null
+                );
+                locataireService.close();
+
+                HttpSession session = request.getSession();
+                session.setAttribute("user", locataireCree); // 👉 Toujours Locataire ici
+                session.setAttribute("userId", locataireCree.getId());
+                session.setAttribute("userRole", locataireCree.getRole());
+                session.setAttribute("userNom", locataireCree.getNom());
+                session.setAttribute("userPrenom", locataireCree.getPrenom());
+
+                redirectToDashboard(locataireCree.getRole(), response, request);
+
             } else if ("PROPRIETAIRE".equals(role)) {
-                // Créer un propriétaire
                 ProprietaireService proprietaireService = new ProprietaireService();
-                try {
-                    userService.creerUtilisateur(nom, prenom, email, password, role);
-                    newUser = proprietaireService.trouverProprietaireParEmail(email);
-                    proprietaireService.close();
-                } catch (Exception e) {
-                    request.setAttribute("errorMessage", "Erreur lors de la création du propriétaire: " + e.getMessage());
-                    request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
-                    return;
-                }
+                userService.creerUtilisateur(nom, prenom, email, password, role);
+                Proprietaire proprietaireCree = proprietaireService.trouverProprietaireParEmail(email);
+                proprietaireService.close();
+
+                HttpSession session = request.getSession();
+                session.setAttribute("user", proprietaireCree); // 👉 Toujours Proprietaire ici
+                session.setAttribute("userId", proprietaireCree.getId());
+                session.setAttribute("userRole", proprietaireCree.getRole());
+                session.setAttribute("userNom", proprietaireCree.getNom());
+                session.setAttribute("userPrenom", proprietaireCree.getPrenom());
+
+                redirectToDashboard(proprietaireCree.getRole(), response, request);
+
             } else {
                 request.setAttribute("errorMessage", "Rôle invalide");
                 request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
-                return;
-            }
-
-            // Connecter automatiquement l'utilisateur après l'inscription
-            if (newUser != null) {
-                HttpSession session = request.getSession();
-                session.setAttribute("user", newUser);
-                session.setAttribute("userId", newUser.getId());
-                session.setAttribute("userRole", newUser.getRole());
-                session.setAttribute("userNom", newUser.getNom());
-                session.setAttribute("userPrenom", newUser.getPrenom());
-
-                // CORRECTION : Ajouter le paramètre request
-                redirectToDashboard(newUser.getRole(), response, request);
             }
 
         } catch (Exception e) {

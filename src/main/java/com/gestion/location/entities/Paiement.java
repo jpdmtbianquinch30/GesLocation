@@ -19,13 +19,13 @@ public class Paiement {
     @Column(name = "mois_couvert", nullable = false)
     private String moisCouvert; // Format: "YYYY-MM"
 
-    @Column(name = "methode_paiement")
+    @Column(name = "methode_paiement", nullable = true)
     private String methodePaiement; // CARTE, VIREMENT, ESPECES, CHEQUE
 
-    @Column(name = "statut_paiement")
+    @Column(name = "statut_paiement", nullable = true)
     private String statutPaiement; // EN_ATTENTE, VALIDE, REFUSE
 
-    @Column(name = "date_creation")
+    @Column(name = "date_creation", nullable = true)
     private LocalDate dateCreation;
 
     @ManyToOne
@@ -51,77 +51,32 @@ public class Paiement {
     }
 
     // Getters et Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getDatePaiement() { return datePaiement; }
+    public void setDatePaiement(LocalDate datePaiement) { this.datePaiement = datePaiement; }
 
-    public LocalDate getDatePaiement() {
-        return datePaiement;
-    }
+    public double getMontant() { return montant; }
+    public void setMontant(double montant) { this.montant = montant; }
 
-    public void setDatePaiement(LocalDate datePaiement) {
-        this.datePaiement = datePaiement;
-    }
+    public String getMoisCouvert() { return moisCouvert; }
+    public void setMoisCouvert(String moisCouvert) { this.moisCouvert = moisCouvert; }
 
-    public double getMontant() {
-        return montant;
-    }
+    public String getMethodePaiement() { return methodePaiement; }
+    public void setMethodePaiement(String methodePaiement) { this.methodePaiement = methodePaiement; }
 
-    public void setMontant(double montant) {
-        this.montant = montant;
-    }
+    public String getStatutPaiement() { return statutPaiement; }
+    public void setStatutPaiement(String statutPaiement) { this.statutPaiement = statutPaiement; }
 
-    public String getMoisCouvert() {
-        return moisCouvert;
-    }
+    public LocalDate getDateCreation() { return dateCreation; }
+    public void setDateCreation(LocalDate dateCreation) { this.dateCreation = dateCreation; }
 
-    public void setMoisCouvert(String moisCouvert) {
-        this.moisCouvert = moisCouvert;
-    }
+    public Locataire getLocataire() { return locataire; }
+    public void setLocataire(Locataire locataire) { this.locataire = locataire; }
 
-    public String getMethodePaiement() {
-        return methodePaiement;
-    }
-
-    public void setMethodePaiement(String methodePaiement) {
-        this.methodePaiement = methodePaiement;
-    }
-
-    public String getStatutPaiement() {
-        return statutPaiement;
-    }
-
-    public void setStatutPaiement(String statutPaiement) {
-        this.statutPaiement = statutPaiement;
-    }
-
-    public LocalDate getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDate dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Locataire getLocataire() {
-        return locataire;
-    }
-
-    public void setLocataire(Locataire locataire) {
-        this.locataire = locataire;
-    }
-
-    public Contrat getContrat() {
-        return contrat;
-    }
-
-    public void setContrat(Contrat contrat) {
-        this.contrat = contrat;
-    }
+    public Contrat getContrat() { return contrat; }
+    public void setContrat(Contrat contrat) { this.contrat = contrat; }
 
     // Méthode pour vérifier si le paiement est en retard
     public boolean isEnRetard() {

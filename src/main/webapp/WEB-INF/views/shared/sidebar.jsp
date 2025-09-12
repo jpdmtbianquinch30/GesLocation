@@ -194,4 +194,4 @@
 </aside>
 
 <!-- Main Content Area -->
-<main class="main-content">
+<main class="main-content"/>

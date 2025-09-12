@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "immeubles")
+@Table(name = "immeuble")
 public class Immeuble {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class Immeuble {
     private List<Unite> unites = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "proprietaire_id")
+    @JoinColumn(name = "proprietaire_id", referencedColumnName = "utilisateur_id")
     private Proprietaire proprietaire;
 
     // Constructeurs

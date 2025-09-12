@@ -9,12 +9,10 @@ com\gestion\location\web\locataire\LocataireDashboardServlet.class
 com\gestion\location\entities\Locataire.class
 com\gestion\location\entities\Immeuble.class
 com\gestion\location\web\admin\GestionUtilisateurServlet.class
-utils\CreateUsers.class
 com\gestion\location\dao\ContratDAO.class
 com\gestion\location\web\proprietaire\ProprietaireDashboardServlet.class
 com\gestion\location\entities\Proprietaire.class
 com\gestion\location\web\locataire\MesPaiementsServlet.class
-utils\GenerateHash.class
 com\gestion\location\entities\Paiement.class
 com\gestion\location\web\locataire\ConsulterOffresServlet.class
 com\gestion\location\service\PaiementService.class
@@ -33,7 +31,6 @@ com\gestion\location\service\ProprietaireService.class
 com\gestion\location\dao\ImmeubleDAO.class
 com\gestion\location\service\UtilisateurService.class
 com\gestion\location\web\auth\LoginServlet.class
-utils\CreateAdmin.class
 com\gestion\location\service\UniteService.class
 com\gestion\location\entities\Contrat.class
 com\gestion\location\web\proprietaire\GestionUniteServlet.class

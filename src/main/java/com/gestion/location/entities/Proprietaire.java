@@ -9,18 +9,16 @@ import java.util.List;
 @PrimaryKeyJoinColumn(name = "utilisateur_id")
 public class Proprietaire extends Utilisateur {
 
-    @Column(name = "numero_telephone")
+    @Column(name = "numero_telephone", length = 20)
     private String numeroTelephone;
 
-    @Column(name = "date_naissance")
-    private String dateNaissance;
-
-    @OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "proprietaire", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Immeuble> immeubles = new ArrayList<>();
 
     // Constructeurs
     public Proprietaire() {
         super();
+        setRole("PROPRIETAIRE"); // assure le rôle
     }
 
     public Proprietaire(String nom, String prenom, String email, String motDePasse, String numeroTelephone) {
@@ -35,14 +33,6 @@ public class Proprietaire extends Utilisateur {
 
     public void setNumeroTelephone(String numeroTelephone) {
         this.numeroTelephone = numeroTelephone;
-    }
-
-    public String getDateNaissance() {
-        return dateNaissance;
-    }
-
-    public void setDateNaissance(String dateNaissance) {
-        this.dateNaissance = dateNaissance;
     }
 
     public List<Immeuble> getImmeubles() {

@@ -1,7 +1,7 @@
 package com.gestion.location.web.locataire;
 
-import com.gestion.location.entities.Utilisateur;
 import com.gestion.location.entities.Locataire;
+import com.gestion.location.service.LocataireService;
 import com.gestion.location.service.ContratService;
 import com.gestion.location.service.PaiementService;
 import jakarta.servlet.ServletException;
@@ -10,60 +10,87 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet("/locataire/dashboard")
 public class LocataireDashboardServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        Object userObj = session.getAttribute("user");
+        HttpSession session = request.getSession(false);
 
-        // VÉRIFICATION DU TYPE AVANT CASTING
-        if (!(userObj instanceof Locataire)) {
-            response.sendRedirect(request.getContextPath() + "/login?error=not_locataire");
+        if (session == null || !"LOCATAIRE".equals(session.getAttribute("userRole"))) {
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        Locataire locataire = (Locataire) userObj;
+        Long sessionUserId = (Long) session.getAttribute("userId");
+        if (sessionUserId == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
 
+        LocataireService locataireService = new LocataireService();
         ContratService contratService = new ContratService();
         PaiementService paiementService = new PaiementService();
 
         try {
-            // Récupérer les données du locataire
-            var contrats = contratService.listerContratsParLocataire(locataire);
-            var paiements = paiementService.listerPaiementsParLocataire(locataire);
+            // 🔹 Récupération correcte via utilisateur_id
+            Locataire locataire = locataireService.trouverLocataireParUtilisateurId(sessionUserId);
 
-            // Calculer les statistiques
+            if (locataire == null) {
+                request.setAttribute("errorMessage", "Locataire introuvable. Veuillez contacter l'administrateur.");
+                request.getRequestDispatcher("/WEB-INF/views/locataire/dashboard.jsp")
+                        .forward(request, response);
+                return;
+            }
+
+            // Listes sécurisées
+            List<?> contrats = contratService.listerContratsParLocataire(locataire);
+            List<?> paiements = paiementService.listerPaiementsParLocataire(locataire);
+
+            contrats = (contrats != null) ? contrats : List.of();
+            paiements = (paiements != null) ? paiements : List.of();
+
+            // Statistiques
             long contratsActifs = contrats.stream()
-                    .filter(contrat -> "ACTIF".equals(contrat.getEtatContrat()))
+                    .filter(c -> "ACTIF".equals(((com.gestion.location.entities.Contrat)c).getEtatContrat()))
                     .count();
-
             long paiementsEnAttente = paiements.stream()
-                    .filter(paiement -> "EN_ATTENTE".equals(paiement.getStatutPaiement()))
+                    .filter(p -> "EN_ATTENTE".equals(((com.gestion.location.entities.Paiement)p).getStatutPaiement()))
                     .count();
-
             double totalPaye = paiements.stream()
-                    .filter(paiement -> "VALIDE".equals(paiement.getStatutPaiement()))
-                    .mapToDouble(paiement -> paiement.getMontant())
+                    .filter(p -> "VALIDE".equals(((com.gestion.location.entities.Paiement)p).getStatutPaiement()))
+                    .mapToDouble(p -> ((com.gestion.location.entities.Paiement)p).getMontant())
                     .sum();
 
-            // Passer les données à la JSP
             request.setAttribute("contrats", contrats);
             request.setAttribute("contratsActifs", contratsActifs);
             request.setAttribute("paiementsEnAttente", paiementsEnAttente);
             request.setAttribute("totalPaye", totalPaye);
 
-            request.getRequestDispatcher("/WEB-INF/views/locataire/dashboard.jsp").forward(request, response);
+            // Prochain paiement
+            Object prochainPaiement = paiements.stream()
+                    .filter(p -> "EN_ATTENTE".equals(((com.gestion.location.entities.Paiement)p).getStatutPaiement()))
+                    .findFirst()
+                    .orElse(null);
+            request.setAttribute("prochainPaiement", prochainPaiement);
+
+            request.getRequestDispatcher("/WEB-INF/views/locataire/dashboard.jsp")
+                    .forward(request, response);
 
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Erreur lors du chargement du dashboard: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/views/locataire/dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/locataire/dashboard.jsp")
+                    .forward(request, response);
         } finally {
+            locataireService.close();
             contratService.close();
             paiementService.close();
         }

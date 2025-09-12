@@ -2,6 +2,8 @@ package com.gestion.location.web.locataire;
 
 import com.gestion.location.entities.Locataire;
 import com.gestion.location.entities.Paiement;
+import com.gestion.location.entities.Utilisateur;
+import com.gestion.location.service.LocataireService;
 import com.gestion.location.service.PaiementService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,14 +18,39 @@ import java.util.List;
 public class MesPaiementsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession();
-        Locataire locataire = (Locataire) session.getAttribute("user");
+        Object userObj = session.getAttribute("user");  // peut être Utilisateur ou Locataire
+
+        if (userObj == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
+        final Locataire locataire;
+
+        if (userObj instanceof Locataire) {
+            locataire = (Locataire) userObj;
+        } else if (userObj instanceof Utilisateur) {
+            LocataireService locataireService = new LocataireService();
+            locataire = locataireService.trouverLocataireParUtilisateurId(((Utilisateur) userObj).getId());
+            locataireService.close();
+        } else {
+            request.setAttribute("errorMessage", "Locataire introuvable. Veuillez contacter l'administrateur.");
+            request.getRequestDispatcher("/WEB-INF/views/locataire/mes_paiements.jsp").forward(request, response);
+            return;
+        }
+
+        if (locataire == null) {
+            request.setAttribute("errorMessage", "Locataire introuvable. Veuillez contacter l'administrateur.");
+            request.getRequestDispatcher("/WEB-INF/views/locataire/mes_paiements.jsp").forward(request, response);
+            return;
+        }
 
         String statut = request.getParameter("statut");
-
         PaiementService paiementService = new PaiementService();
 
         try {
@@ -37,14 +64,12 @@ public class MesPaiementsServlet extends HttpServlet {
                 paiements = paiementService.listerPaiementsParLocataire(locataire);
             }
 
-            // Calculer le total payé
             double totalPaye = paiements.stream()
                     .filter(p -> "VALIDE".equals(p.getStatutPaiement()))
                     .mapToDouble(Paiement::getMontant)
                     .sum();
 
-            // Prochain paiement à effectuer
-            var prochainPaiement = paiements.stream()
+            Paiement prochainPaiement = paiements.stream()
                     .filter(p -> "EN_ATTENTE".equals(p.getStatutPaiement()))
                     .findFirst()
                     .orElse(null);
