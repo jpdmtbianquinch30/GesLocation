@@ -4,10 +4,14 @@ import com.gestion.location.dao.PaiementDAO;
 import com.gestion.location.entities.Contrat;
 import com.gestion.location.entities.Locataire;
 import com.gestion.location.entities.Paiement;
+import com.gestion.location.entities.Proprietaire;
 import com.gestion.location.util.JpaUtil;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PaiementService {
     private final EntityManager entityManager;
@@ -18,6 +22,169 @@ public class PaiementService {
         this.paiementDAO = new PaiementDAO(entityManager);
     }
 
+    // AJOUTER ces méthodes pour les propriétaires :
+
+    /**
+     * Récupère tous les paiements associés aux propriétés d'un propriétaire
+     */
+    public List<Paiement> listerPaiementsParProprietaire(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT p FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "ORDER BY p.datePaiement DESC";
+
+            return entityManager.createQuery(jpql, Paiement.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du listing des paiements par propriétaire: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Calcule le revenu mensuel d'un propriétaire
+     */
+    public double calculerRevenuMensuel(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT COALESCE(SUM(p.montant), 0) FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "AND YEAR(p.datePaiement) = YEAR(CURRENT_DATE) " +
+                    "AND MONTH(p.datePaiement) = MONTH(CURRENT_DATE) " +
+                    "AND p.statutPaiement = 'VALIDE'";
+
+            return entityManager.createQuery(jpql, Double.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du calcul du revenu mensuel: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Calcule le revenu annuel d'un propriétaire
+     */
+    public double calculerRevenuAnnuel(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT COALESCE(SUM(p.montant), 0) FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "AND YEAR(p.datePaiement) = YEAR(CURRENT_DATE) " +
+                    "AND p.statutPaiement = 'VALIDE'";
+
+            return entityManager.createQuery(jpql, Double.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du calcul du revenu annuel: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Calcule le revenu total d'un propriétaire
+     */
+    public double calculerRevenuTotal(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT COALESCE(SUM(p.montant), 0) FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "AND p.statutPaiement = 'VALIDE'";
+
+            return entityManager.createQuery(jpql, Double.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du calcul du revenu total: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Récupère l'évolution des revenus mensuels sur les 6 derniers mois
+     */
+    public Map<String, Double> getEvolutionRevenusMensuels(Proprietaire proprietaire) {
+        try {
+            Map<String, Double> evolution = new LinkedHashMap<>();
+
+            // Obtenir les 6 derniers mois
+            for (int i = 5; i >= 0; i--) {
+                YearMonth mois = YearMonth.now().minusMonths(i);
+                String moisAnnee = mois.getMonth().toString() + " " + mois.getYear();
+
+                String jpql = "SELECT COALESCE(SUM(p.montant), 0) FROM Paiement p " +
+                        "JOIN p.contrat c " +
+                        "JOIN c.unite u " +
+                        "JOIN u.immeuble i " +
+                        "WHERE i.proprietaire.id = :proprietaireId " +
+                        "AND YEAR(p.datePaiement) = :annee " +
+                        "AND MONTH(p.datePaiement) = :mois " +
+                        "AND p.statutPaiement = 'VALIDE'";
+
+                Double revenuMensuel = entityManager.createQuery(jpql, Double.class)
+                        .setParameter("proprietaireId", proprietaire.getId())
+                        .setParameter("annee", mois.getYear())
+                        .setParameter("mois", mois.getMonthValue())
+                        .getSingleResult();
+
+                evolution.put(moisAnnee, revenuMensuel);
+            }
+
+            return evolution;
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du calcul de l'évolution des revenus: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Récupère les paiements en attente pour un propriétaire
+     */
+    public List<Paiement> listerPaiementsEnAttenteParProprietaire(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT p FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "AND p.statutPaiement = 'EN_ATTENTE' " +
+                    "ORDER BY p.datePaiement DESC";
+
+            return entityManager.createQuery(jpql, Paiement.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du listing des paiements en attente: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Calcule le montant total des paiements en attente
+     */
+    public double calculerTotalPaiementsEnAttente(Proprietaire proprietaire) {
+        try {
+            String jpql = "SELECT COALESCE(SUM(p.montant), 0) FROM Paiement p " +
+                    "JOIN p.contrat c " +
+                    "JOIN c.unite u " +
+                    "JOIN u.immeuble i " +
+                    "WHERE i.proprietaire.id = :proprietaireId " +
+                    "AND p.statutPaiement = 'EN_ATTENTE'";
+
+            return entityManager.createQuery(jpql, Double.class)
+                    .setParameter("proprietaireId", proprietaire.getId())
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du calcul des paiements en attente: " + e.getMessage(), e);
+        }
+    }
+
+    // Les méthodes existantes restent inchangées ci-dessous...
     public Paiement creerPaiement(LocalDate datePaiement, double montant, String moisCouvert,
                                   String methodePaiement, Locataire locataire, Contrat contrat) {
         try {
@@ -144,8 +311,6 @@ public class PaiementService {
                     .mapToDouble(Paiement::getMontant)
                     .sum();
 
-            // Ici, vous pourriez ajouter la logique pour calculer le total dû
-            // en fonction des contrats actifs du locataire
             return totalPaye;
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors du calcul du solde: " + e.getMessage(), e);

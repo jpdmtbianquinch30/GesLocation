@@ -22,39 +22,39 @@ public class GestionImmeubleServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Proprietaire proprietaire = (Proprietaire) session.getAttribute("user");
+
+        if (proprietaire == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         ImmeubleService immeubleService = new ImmeubleService();
 
         try {
             String action = request.getParameter("action");
 
-            // EDITER UN IMMEUBLE
             if ("edit".equals(action)) {
                 String idStr = request.getParameter("id");
                 if (idStr != null) {
                     Long id = Long.parseLong(idStr);
                     Immeuble immeuble = immeubleService.trouverImmeubleParId(id);
-                    if (immeuble != null && immeuble.getProprietaire() != null
-                            && immeuble.getProprietaire().getId().equals(proprietaire.getId())) {
+                    if (isOwner(immeuble, proprietaire)) {
                         request.setAttribute("immeubleToEdit", immeuble);
                     }
                 }
-            }
-
-            // SUPPRIMER UN IMMEUBLE
-            else if ("delete".equals(action)) {
+            } else if ("delete".equals(action)) {
                 String idStr = request.getParameter("id");
                 if (idStr != null) {
                     Long id = Long.parseLong(idStr);
                     Immeuble immeuble = immeubleService.trouverImmeubleParId(id);
-                    if (immeuble != null && immeuble.getProprietaire() != null
-                            && immeuble.getProprietaire().getId().equals(proprietaire.getId())) {
+                    if (isOwner(immeuble, proprietaire)) {
                         immeubleService.supprimerImmeuble(id);
                         request.setAttribute("successMessage", "Immeuble supprimé avec succès");
                     }
                 }
             }
 
-            // LISTE DES IMMEUBLES DU PROPRIÉTAIRE
+            // Charger la liste des immeubles
             List<Immeuble> immeubles = immeubleService.listerImmeublesParProprietaire(proprietaire);
             request.setAttribute("immeubles", immeubles);
 
@@ -76,31 +76,41 @@ public class GestionImmeubleServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Proprietaire proprietaire = (Proprietaire) session.getAttribute("user");
+
+        if (proprietaire == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         ImmeubleService immeubleService = new ImmeubleService();
 
         try {
             String action = request.getParameter("action");
 
             if ("create".equals(action)) {
-                // CREER UN IMMEUBLE
+                // Créer un immeuble
                 String nom = request.getParameter("nom");
                 String adresse = request.getParameter("adresse");
                 String description = request.getParameter("description");
                 String equipements = request.getParameter("equipements");
 
-                Immeuble immeuble = immeubleService.creerImmeuble(nom, adresse, description, equipements, proprietaire);
-                request.setAttribute("successMessage", "Immeuble créé avec succès");
-            }
+                Immeuble immeuble = new Immeuble();
+                immeuble.setNom(nom);
+                immeuble.setAdresse(adresse);
+                immeuble.setDescription(description);
+                immeuble.setEquipements(equipements);
+                immeuble.setProprietaire(proprietaire);
 
-            else if ("update".equals(action)) {
-                // METTRE A JOUR UN IMMEUBLE
+                immeubleService.creerImmeuble(immeuble);
+                request.setAttribute("successMessage", "Immeuble créé avec succès");
+
+            } else if ("update".equals(action)) {
+                // Mettre à jour un immeuble
                 String idStr = request.getParameter("id");
                 if (idStr != null) {
                     Long id = Long.parseLong(idStr);
                     Immeuble immeuble = immeubleService.trouverImmeubleParId(id);
-                    if (immeuble != null && immeuble.getProprietaire() != null
-                            && immeuble.getProprietaire().getId().equals(proprietaire.getId())) {
-
+                    if (isOwner(immeuble, proprietaire)) {
                         immeuble.setNom(request.getParameter("nom"));
                         immeuble.setAdresse(request.getParameter("adresse"));
                         immeuble.setDescription(request.getParameter("description"));
@@ -112,7 +122,7 @@ public class GestionImmeubleServlet extends HttpServlet {
                 }
             }
 
-            // RECHARGER LA LISTE DES IMMEUBLES
+            // Recharger la liste des immeubles
             List<Immeuble> immeubles = immeubleService.listerImmeublesParProprietaire(proprietaire);
             request.setAttribute("immeubles", immeubles);
 
@@ -126,5 +136,12 @@ public class GestionImmeubleServlet extends HttpServlet {
         } finally {
             immeubleService.close();
         }
+    }
+
+    // Méthode utilitaire pour vérifier le propriétaire
+    private boolean isOwner(Immeuble immeuble, Proprietaire proprietaire) {
+        return immeuble != null
+                && immeuble.getProprietaire() != null
+                && immeuble.getProprietaire().getId().equals(proprietaire.getId());
     }
 }

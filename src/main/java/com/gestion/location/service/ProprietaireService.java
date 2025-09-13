@@ -15,6 +15,7 @@ public class ProprietaireService {
         this.proprietaireDAO = new ProprietaireDAO(entityManager);
     }
 
+    // CRUD Operations
     public Proprietaire trouverProprietaireParId(Long id) {
         try {
             return proprietaireDAO.findById(id);
@@ -23,6 +24,25 @@ public class ProprietaireService {
         }
     }
 
+    public void supprimerProprietaire(Long id) {
+        try {
+            // Réassigner les immeubles avant suppression
+            String jpqlUpdate = "UPDATE Immeuble i SET i.proprietaire = null WHERE i.proprietaire.id = :id";
+            entityManager.createQuery(jpqlUpdate)
+                    .setParameter("id", id)
+                    .executeUpdate();
+
+            // Supprimer le propriétaire
+            Proprietaire proprio = entityManager.find(Proprietaire.class, id);
+            if (proprio != null) {
+                entityManager.remove(proprio);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la suppression du propriétaire: " + e.getMessage(), e);
+        }
+    }
+
+    // Listing methods
     public List<Proprietaire> listerTousLesProprietaires() {
         try {
             return proprietaireDAO.findAll();
@@ -31,6 +51,7 @@ public class ProprietaireService {
         }
     }
 
+    // Search methods
     public Proprietaire trouverProprietaireParEmail(String email) {
         try {
             return proprietaireDAO.findByEmail(email);
@@ -44,6 +65,36 @@ public class ProprietaireService {
             return proprietaireDAO.findByNom(nom);
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la recherche des propriétaires par nom: " + e.getMessage(), e);
+        }
+    }
+
+    // Special operations
+    public void supprimerTousProprietairesSauf(Long idExclusion) {
+        try {
+            entityManager.getTransaction().begin();
+
+            // 1. Mettre à null les immeubles des propriétaires à supprimer
+            String jpqlUpdate = "UPDATE Immeuble i SET i.proprietaire = null " +
+                    "WHERE i.proprietaire.id IS NOT NULL AND i.proprietaire.id != :idExclusion";
+            entityManager.createQuery(jpqlUpdate)
+                    .setParameter("idExclusion", idExclusion)
+                    .executeUpdate();
+
+            // 2. Supprimer les propriétaires
+            String jpqlDelete = "DELETE FROM Proprietaire p WHERE p.id != :idExclusion";
+            int deletedCount = entityManager.createQuery(jpqlDelete)
+                    .setParameter("idExclusion", idExclusion)
+                    .executeUpdate();
+
+            entityManager.getTransaction().commit();
+
+            System.out.println(deletedCount + " propriétaires supprimés (sauf ID " + idExclusion + ")");
+
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw new RuntimeException("Erreur lors de la suppression des propriétaires: " + e.getMessage(), e);
         }
     }
 

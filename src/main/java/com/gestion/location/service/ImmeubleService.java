@@ -16,11 +16,9 @@ public class ImmeubleService {
         this.immeubleDAO = new ImmeubleDAO(entityManager);
     }
 
-    public Immeuble creerImmeuble(String nom, String adresse, String description, String equipements, Proprietaire proprietaire) {
+    // CRUD Operations
+    public Immeuble creerImmeuble(Immeuble immeuble) {
         try {
-            Immeuble immeuble = new Immeuble(nom, adresse, description, equipements);
-            immeuble.setProprietaire(proprietaire);
-
             immeubleDAO.create(immeuble);
             return immeuble;
         } catch (Exception e) {
@@ -33,38 +31,6 @@ public class ImmeubleService {
             return immeubleDAO.findById(id);
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la recherche de l'immeuble: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Immeuble> listerTousLesImmeubles() {
-        try {
-            return immeubleDAO.findAll();
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du listing des immeubles: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Immeuble> listerImmeublesParProprietaire(Proprietaire proprietaire) {
-        try {
-            return immeubleDAO.findByProprietaire(proprietaire);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors du listing des immeubles par propriétaire: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Immeuble> trouverImmeublesParNom(String nom) {
-        try {
-            return immeubleDAO.findByNom(nom);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche des immeubles par nom: " + e.getMessage(), e);
-        }
-    }
-
-    public List<Immeuble> trouverImmeublesParAdresse(String adresse) {
-        try {
-            return immeubleDAO.findByAdresse(adresse);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la recherche des immeubles par adresse: " + e.getMessage(), e);
         }
     }
 
@@ -81,6 +47,57 @@ public class ImmeubleService {
             immeubleDAO.delete(id);
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de la suppression de l'immeuble: " + e.getMessage(), e);
+        }
+    }
+
+    // Listing methods
+    public List<Immeuble> listerTousLesImmeubles() {
+        try {
+            return immeubleDAO.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du listing des immeubles: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Immeuble> listerImmeublesParProprietaire(Proprietaire proprietaire) {
+        try {
+            return immeubleDAO.findByProprietaire(proprietaire);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du listing des immeubles par propriétaire: " + e.getMessage(), e);
+        }
+    }
+
+    // Search methods
+    public List<Immeuble> trouverImmeublesParNom(String nom) {
+        try {
+            return immeubleDAO.findByNom(nom);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des immeubles par nom: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Immeuble> trouverImmeublesParAdresse(String adresse) {
+        try {
+            return immeubleDAO.findByAdresse(adresse);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des immeubles par adresse: " + e.getMessage(), e);
+        }
+    }
+
+    // Special operations
+    public void reassignerTousImmeubles(Proprietaire nouveauProprietaire) {
+        try {
+            entityManager.getTransaction().begin();
+            String jpql = "UPDATE Immeuble i SET i.proprietaire = :proprio";
+            entityManager.createQuery(jpql)
+                    .setParameter("proprio", nouveauProprietaire)
+                    .executeUpdate();
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            throw new RuntimeException("Erreur lors de la réassignation des immeubles: " + e.getMessage(), e);
         }
     }
 

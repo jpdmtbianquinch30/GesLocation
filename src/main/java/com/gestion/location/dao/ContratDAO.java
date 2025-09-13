@@ -16,6 +16,7 @@ public class ContratDAO {
         this.entityManager = entityManager;
     }
 
+    // Méthodes CRUD de base
     public void create(Contrat contrat) {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -23,57 +24,56 @@ public class ContratDAO {
             entityManager.persist(contrat);
             transaction.commit();
         } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
+            if (transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Erreur lors de la création du contrat: " + e.getMessage(), e);
         }
     }
 
     public Contrat findById(Long id) {
-        return entityManager.find(Contrat.class, id);
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.id = :id", Contrat.class
+            );
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche du contrat: " + e.getMessage(), e);
+        }
     }
 
     public List<Contrat> findAll() {
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c", Contrat.class);
-        return query.getResultList();
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT DISTINCT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i", Contrat.class
+            );
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors du listing des contrats: " + e.getMessage(), e);
+        }
     }
 
-    public List<Contrat> findByLocataire(Locataire locataire) {
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c WHERE c.locataire = :locataire", Contrat.class);
-        query.setParameter("locataire", locataire);
-        return query.getResultList();
-    }
-
-    public List<Contrat> findByUnite(Unite unite) {
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c WHERE c.unite = :unite", Contrat.class);
-        query.setParameter("unite", unite);
-        return query.getResultList();
-    }
-
-    public List<Contrat> findByEtat(String etat) {
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c WHERE c.etatContrat = :etat", Contrat.class);
-        query.setParameter("etat", etat);
-        return query.getResultList();
-    }
-
-    public List<Contrat> findContratsActifs() {
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c WHERE c.etatContrat = 'ACTIF'", Contrat.class);
-        return query.getResultList();
-    }
-
-    public List<Contrat> findContratsExpirantDans(int jours) {
-        LocalDate dateLimite = LocalDate.now().plusDays(jours);
-        TypedQuery<Contrat> query = entityManager.createQuery(
-                "SELECT c FROM Contrat c WHERE c.dateFin BETWEEN :aujourdhui AND :dateLimite", Contrat.class);
-        query.setParameter("aujourdhui", LocalDate.now());
-        query.setParameter("dateLimite", dateLimite);
-        return query.getResultList();
+    // NOUVELLE MÉTHODE IMPORTANTE
+    public List<Contrat> findByProprietaire(Long proprietaireId) {
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT DISTINCT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE i.proprietaire.id = :proprietaireId", Contrat.class
+            );
+            query.setParameter("proprietaireId", proprietaireId);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats par propriétaire: " + e.getMessage(), e);
+        }
     }
 
     public void update(Contrat contrat) {
@@ -83,10 +83,8 @@ public class ContratDAO {
             entityManager.merge(contrat);
             transaction.commit();
         } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
+            if (transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Erreur lors de la modification du contrat: " + e.getMessage(), e);
         }
     }
 
@@ -100,10 +98,104 @@ public class ContratDAO {
             }
             transaction.commit();
         } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
+            if (transaction.isActive()) transaction.rollback();
+            throw new RuntimeException("Erreur lors de la suppression du contrat: " + e.getMessage(), e);
+        }
+    }
+
+    // Autres méthodes de recherche...
+    public List<Contrat> findByLocataire(Locataire locataire) {
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.locataire.id = :locataireId", Contrat.class
+            );
+            query.setParameter("locataireId", locataire.getId());
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats par locataire: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Contrat> findByUnite(Unite unite) {
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.unite.id = :uniteId", Contrat.class
+            );
+            query.setParameter("uniteId", unite.getId());
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats par unité: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Contrat> findByEtat(String etat) {
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.etatContrat = :etat", Contrat.class
+            );
+            query.setParameter("etat", etat);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats par état: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Contrat> findContratsActifs() {
+        try {
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.etatContrat = 'ACTIF'", Contrat.class
+            );
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats actifs: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Contrat> findContratsExpirantDans(int jours) {
+        try {
+            LocalDate dateLimite = LocalDate.now().plusDays(jours);
+            TypedQuery<Contrat> query = entityManager.createQuery(
+                    "SELECT c FROM Contrat c " +
+                            "JOIN FETCH c.locataire l " +
+                            "JOIN FETCH c.unite un " +
+                            "JOIN FETCH un.immeuble i " +
+                            "WHERE c.dateFin BETWEEN :aujourdhui AND :dateLimite " +
+                            "AND c.etatContrat = 'ACTIF'", Contrat.class
+            );
+            query.setParameter("aujourdhui", LocalDate.now());
+            query.setParameter("dateLimite", dateLimite);
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la recherche des contrats expirant bientôt: " + e.getMessage(), e);
+        }
+    }
+
+    public boolean hasContratActif(Unite unite) {
+        try {
+            TypedQuery<Long> query = entityManager.createQuery(
+                    "SELECT COUNT(c) FROM Contrat c " +
+                            "WHERE c.unite.id = :uniteId AND c.etatContrat = 'ACTIF'", Long.class
+            );
+            query.setParameter("uniteId", unite.getId());
+            return query.getSingleResult() > 0;
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de la vérification des contrats actifs: " + e.getMessage(), e);
         }
     }
 }

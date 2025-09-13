@@ -34,7 +34,7 @@ public class Contrat {
     @JoinColumn(name = "locataire_id", nullable = false)
     private Locataire locataire;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "unite_id", nullable = false)
     private Unite unite;
 
@@ -56,85 +56,35 @@ public class Contrat {
     }
 
     // Getters et Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getDateDebut() { return dateDebut; }
+    public void setDateDebut(LocalDate dateDebut) { this.dateDebut = dateDebut; }
 
-    public LocalDate getDateDebut() {
-        return dateDebut;
-    }
+    public LocalDate getDateFin() { return dateFin; }
+    public void setDateFin(LocalDate dateFin) { this.dateFin = dateFin; }
 
-    public void setDateDebut(LocalDate dateDebut) {
-        this.dateDebut = dateDebut;
-    }
+    public double getLoyerMensuel() { return loyerMensuel; }
+    public void setLoyerMensuel(double loyerMensuel) { this.loyerMensuel = loyerMensuel; }
 
-    public LocalDate getDateFin() {
-        return dateFin;
-    }
+    public double getCaution() { return caution; }
+    public void setCaution(double caution) { this.caution = caution; }
 
-    public void setDateFin(LocalDate dateFin) {
-        this.dateFin = dateFin;
-    }
+    public String getEtatContrat() { return etatContrat; }
+    public void setEtatContrat(String etatContrat) { this.etatContrat = etatContrat; }
 
-    public double getLoyerMensuel() {
-        return loyerMensuel;
-    }
+    public LocalDate getDateCreation() { return dateCreation; }
+    public void setDateCreation(LocalDate dateCreation) { this.dateCreation = dateCreation; }
 
-    public void setLoyerMensuel(double loyerMensuel) {
-        this.loyerMensuel = loyerMensuel;
-    }
+    public Locataire getLocataire() { return locataire; }
+    public void setLocataire(Locataire locataire) { this.locataire = locataire; }
 
-    public double getCaution() {
-        return caution;
-    }
+    public Unite getUnite() { return unite; }
+    public void setUnite(Unite unite) { this.unite = unite; }
 
-    public void setCaution(double caution) {
-        this.caution = caution;
-    }
-
-    public String getEtatContrat() {
-        return etatContrat;
-    }
-
-    public void setEtatContrat(String etatContrat) {
-        this.etatContrat = etatContrat;
-    }
-
-    public LocalDate getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(LocalDate dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Locataire getLocataire() {
-        return locataire;
-    }
-
-    public void setLocataire(Locataire locataire) {
-        this.locataire = locataire;
-    }
-
-    public Unite getUnite() {
-        return unite;
-    }
-
-    public void setUnite(Unite unite) {
-        this.unite = unite;
-    }
-
-    public List<Paiement> getPaiements() {
-        return paiements;
-    }
-
-    public void setPaiements(List<Paiement> paiements) {
-        this.paiements = paiements;
-    }
+    public List<Paiement> getPaiements() { return paiements; }
+    public void setPaiements(List<Paiement> paiements) { this.paiements = paiements; }
 
     // Méthodes utilitaires
     public void addPaiement(Paiement paiement) {
@@ -147,7 +97,6 @@ public class Contrat {
         paiement.setContrat(null);
     }
 
-    // Méthode pour vérifier si le contrat est actif
     public boolean isActif() {
         LocalDate aujourdhui = LocalDate.now();
         return "ACTIF".equals(etatContrat) &&

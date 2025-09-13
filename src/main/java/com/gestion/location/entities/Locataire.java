@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Table(name = "locataires")
 @PrimaryKeyJoinColumn(name = "utilisateur_id") // FK vers Utilisateur

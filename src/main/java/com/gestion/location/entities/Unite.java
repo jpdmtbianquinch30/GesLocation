@@ -3,7 +3,7 @@ package com.gestion.location.entities;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "unite")  // Nom exact de la table
+@Table(name = "unite")
 public class Unite {
 
     @Id
@@ -32,9 +32,10 @@ public class Unite {
     @JoinColumn(name = "immeuble_id", nullable = false)
     private Immeuble immeuble;
 
-    @OneToOne
-    @JoinColumn(name = "contrat_id")  // Clé étrangère dans la table contrat si elle existe
-    private Contrat contrat;
+    // SUPPRIMER la référence directe au contrat
+    // @OneToOne
+    // @JoinColumn(name = "contrat_id")
+    // private Contrat contrat;
 
     // Constructeurs
     public Unite() {}
@@ -73,6 +74,7 @@ public class Unite {
     public Immeuble getImmeuble() { return immeuble; }
     public void setImmeuble(Immeuble immeuble) { this.immeuble = immeuble; }
 
-    public Contrat getContrat() { return contrat; }
-    public void setContrat(Contrat contrat) { this.contrat = contrat; }
+    // SUPPRIMER le getter et setter pour contrat
+    // public Contrat getContrat() { return contrat; }
+    // public void setContrat(Contrat contrat) { this.contrat = contrat; }
 }

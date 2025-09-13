@@ -42,8 +42,8 @@ public class PaiementDAO {
 
     public List<Paiement> findByLocataire(Locataire locataire) {
         TypedQuery<Paiement> query = entityManager.createQuery(
-                "SELECT p FROM Paiement p WHERE p.locataire = :locataire", Paiement.class);
-        query.setParameter("locataire", locataire);
+                "SELECT p FROM Paiement p WHERE p.locataire.id = :locataireId", Paiement.class);
+        query.setParameter("locataireId", locataire.getId());
         return query.getResultList();
     }
 
